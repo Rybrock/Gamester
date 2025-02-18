@@ -23,7 +23,17 @@ const profileImageUrl = ref('/default-avatar.png');
 
 const user = computed(() => userStore.user);
 
+const restoreUserFromLocalStorage = () => {
+  if (process.client) {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      userStore.setUser(JSON.parse(storedUser));
+    }
+  }
+};
+
 onMounted(() => {
+  restoreUserFromLocalStorage();
   if (user.value) {
     newUsername.value = user.value.username || '';
     profileImageUrl.value = user.value.photoURL || '/default-avatar.png';
@@ -47,7 +57,11 @@ const updateUsername = async () => {
     await updateDoc(userRef, { username: newUsername.value });
 
     userStore.setUser({ ...user.value, username: newUsername.value });
-    localStorage.setItem('user', JSON.stringify(userStore.user));
+
+ 
+    if (process.client) {
+      localStorage.setItem('user', JSON.stringify(userStore.user));
+    }
 
     toast.success('Username updated successfully!');
   } catch (error) {
@@ -91,7 +105,10 @@ const uploadImage = async () => {
         await updateDoc(userRef, { photoURL: downloadURL });
 
         userStore.setUser({ ...user.value, photoURL: downloadURL });
-        localStorage.setItem('user', JSON.stringify(userStore.user));
+
+        if (NodeJS.process.client) {
+          localStorage.setItem('user', JSON.stringify(userStore.user));
+        }
 
         toast.success('Profile image uploaded successfully!');
       }

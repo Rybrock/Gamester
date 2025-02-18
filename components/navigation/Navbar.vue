@@ -48,7 +48,6 @@ const toggleDarkMode = () => {
 const logout = async () => {
   try {
     await signOut($auth);
-    console.log("Logged out successfully");
     router.push("/auth/login"); // Use router instead of window.location.href
   } catch (error) {
     console.error("Logout failed:", error);
@@ -91,12 +90,17 @@ const logout = async () => {
           </NuxtLink>
 
           <!-- Profile Image in Slideover -->
-          <div v-if="isLoggedIn" class="flex items-center gap-2">
+          <div v-if="isLoggedIn" class="flex flex-col gap-2">
             <NuxtLink to="/user/profile" @click="isOpen = false"
               class="flex items-center gap-2 hover:bg-orange-300 hover:text-slate-900 w-4/12 rounded-lg p-1">
               <UIcon name="i-heroicons:user-16-solid" class="w-7 h-7 cursor-pointer text-slate-900 dark:text-white" />
               Profile
             </NuxtLink>
+            <NuxtLink to="/search" @click="isOpen = false"
+            class="flex items-center gap-2 hover:bg-orange-300 hover:text-slate-900 w-4/12 rounded-lg p-1">
+            <UIcon name="i-heroicons:magnifying-glass-16-solid" class="w-7 h-7 cursor-pointer text-slate-900 dark:text-white" />
+            Search
+          </NuxtLink>
           </div>
 
           <!-- Conditionally show these links based on if the user is logged in or not -->
@@ -119,7 +123,7 @@ const logout = async () => {
 
       <!-- Show the logout link if the user is logged in -->
       <template v-if="isLoggedIn">
-        <div class="flex justify-center">
+        <div @click="isOpen = false" class="flex justify-center">
           <button @click="logout"
             class="flex items-center justify-center gap-2 bg-red-300 hover:bg-red-500 text-white rounded-lg p-2 mb-2">
             <UIcon name="i-heroicons:arrow-left-start-on-rectangle-16-solid"
