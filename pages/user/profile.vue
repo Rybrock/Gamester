@@ -17,15 +17,12 @@ const auth = getAuth();
 const db = getFirestore();
 const storage = getStorage();
 
-// Reactive state
 const newUsername = ref('');
 const profileImage = ref(null);
 const profileImageUrl = ref('/default-avatar.png');
 
-// Computed property for user
 const user = computed(() => userStore.user);
 
-// Update `newUsername` when the user changes
 onMounted(() => {
   if (user.value) {
     newUsername.value = user.value.username || '';
@@ -33,7 +30,6 @@ onMounted(() => {
   }
 });
 
-// Update Username
 const updateUsername = async () => {
   if (!user.value || !auth.currentUser) {
     toast.error('User not found. Please log in again.');
@@ -46,12 +42,10 @@ const updateUsername = async () => {
   }
 
   try {
-    // Update Firebase Auth & Firestore
     await updateProfile(auth.currentUser, { displayName: newUsername.value });
     const userRef = doc(db, 'users', user.value.uid);
     await updateDoc(userRef, { username: newUsername.value });
 
-    // Update Store & LocalStorage
     userStore.setUser({ ...user.value, username: newUsername.value });
     localStorage.setItem('user', JSON.stringify(userStore.user));
 
@@ -62,13 +56,11 @@ const updateUsername = async () => {
   }
 };
 
-// Handle File Selection
 const handleFileChange = (event) => {
   const file = event.target.files[0];
   if (file) profileImage.value = file;
 };
 
-// Upload Profile Image
 const uploadImage = async () => {
   if (!profileImage.value || !user.value || !auth.currentUser) {
     toast.error('Please select an image first.');
@@ -90,13 +82,11 @@ const uploadImage = async () => {
         toast.error('Failed to upload image.');
       },
       async () => {
-        // Get image URL and update profile
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         profileImageUrl.value = downloadURL;
 
         await updateProfile(auth.currentUser, { photoURL: downloadURL });
 
-        // Update Firestore & Store
         const userRef = doc(db, 'users', user.value.uid);
         await updateDoc(userRef, { photoURL: downloadURL });
 
@@ -120,7 +110,6 @@ const uploadImage = async () => {
         Profile for {{ user?.username || 'User' }}
       </h1>
 
-      <!-- Profile Image Section -->
       <div class="flex flex-col items-center mb-4">
         <img
           :src="profileImageUrl"
@@ -136,7 +125,6 @@ const uploadImage = async () => {
         </button>
       </div>
 
-      <!-- Username Input -->
       <div class="mb-4">
         <label for="username" class="block text-stone-700 font-medium text-sm mb-2">Username</label>
         <input
@@ -148,7 +136,6 @@ const uploadImage = async () => {
         />
       </div>
 
-      <!-- Update Username Button -->
       <div class="flex justify-center">
         <button
           @click="updateUsername"

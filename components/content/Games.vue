@@ -1,48 +1,57 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
 const gameData = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
-const gamesPerPage = 16; // Number of games per page
+const gamesPerPage = 16;
+const isLoading = ref(false);
 
-// Placeholder image URL
-const placeholderImage = '/placeholder.webp'; // Replace with your actual placeholder image URL
+const placeholderImage = '/placeholder.webp';
 
-// Fetch games with pagination
 const fetchGames = async (page = 1) => {
+    isLoading.value = true;
     try {
         const response = await fetch(`/api/games?page=${page}&page_size=${gamesPerPage}`);
         const data = await response.json();
 
         if (data && data.results) {
             gameData.value = data.results;
-            totalPages.value = Math.ceil(data.count / gamesPerPage); // Assuming the API returns a `count` of total results
+            totalPages.value = Math.ceil(data.count / gamesPerPage);
         }
     } catch (error) {
         console.error('Error fetching games:', error);
+    } finally {
+        isLoading.value = false;
     }
 };
 
-// On component mount, fetch the first page of games
 onMounted(() => {
     fetchGames(currentPage.value);
 });
 
-// Go to the next page
 const nextPage = () => {
     if (currentPage.value < totalPages.value) {
         currentPage.value++;
-        fetchGames(currentPage.value); // Fetch new page when the current page changes
+        fetchGames(currentPage.value);
+        scrollToTop();
     }
 };
 
-// Go to the previous page
 const prevPage = () => {
     if (currentPage.value > 1) {
         currentPage.value--;
-        fetchGames(currentPage.value); // Fetch new page when the current page changes
+        fetchGames(currentPage.value);
+        scrollToTop();
     }
+};
+
+const scrollToTop = () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+    });
 };
 </script>
 
@@ -50,18 +59,20 @@ const prevPage = () => {
     <div class="w-full">
         <h3 class="text-4xl font-bold mb-4 text-center">Games</h3>
 
-        <p v-if="gameData.length === 0" class="text-center">Loading games...</p>
+        <div v-if="isLoading" class="flex justify-center items-center">
+            <div class="spinner"></div>
+        </div>
 
         <div v-else class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
             <div v-for="game in gameData" :key="game.id"
                 class="cursor-pointer hover:text-blue-500 bg-gray-100 dark:bg-gray-900 p-2 rounded-lg">
-                {{ game.name }}
-                <!-- Fallback to placeholder image if no background_image -->
-                <img :src="game.background_image || placeholderImage" alt="Game Image" class="w-full h-48 object-cover rounded-lg">
+                <NuxtLink :to="`/games/${game.id}`" class="block">
+                    <h4 class="text-center">{{ game.name }}</h4>
+                    <img :src="game.background_image || placeholderImage" alt="Game Image" class="w-full h-48 object-cover rounded-lg">
+                </NuxtLink>
             </div>
         </div>
 
-        <!-- Pagination Controls -->
         <div class="flex justify-center mt-4">
             <button 
                 @click="prevPage" 
@@ -81,3 +92,19 @@ const prevPage = () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>

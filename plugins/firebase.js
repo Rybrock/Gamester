@@ -3,7 +3,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Firebase config (replace with your Firebase project configuration)
 const firebaseConfig = {
     apiKey: "AIzaSyBNlqed91-FH9vdMNCNJ-_ESifNcJW9ag0",
     authDomain: "gamefo-88804.firebaseapp.com",
@@ -14,15 +13,12 @@ const firebaseConfig = {
     measurementId: "G-N2BF4KK96L"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 export default defineNuxtPlugin(nuxtApp => {
-    // Initialize Firebase Auth and Firestore with the initialized app
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Provide Firebase services to the app
     nuxtApp.provide('auth', auth);
     nuxtApp.provide('db', db);
 });
