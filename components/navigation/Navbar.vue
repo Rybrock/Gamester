@@ -14,7 +14,7 @@ const { $auth } = useNuxtApp();
 const router = useRouter();
 
 // **Compute user profile image dynamically**
-const userProfileImage = computed(() => user.value?.photoURL || "/default-avatar.png");
+const userProfileImage = computed(() => user.value?.photoURL || "/placeholder.webp");
 
 // **Check user authentication state**
 onMounted(() => {
