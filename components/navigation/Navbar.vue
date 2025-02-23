@@ -4,51 +4,43 @@ import { useNuxtApp } from "#app";
 import { signOut, onAuthStateChanged, getAuth } from "firebase/auth";
 import { useRouter } from "vue-router";
 
-// Reactive variables
 const isOpen = ref(false);
 const isDarkMode = ref(false);
 const isLoggedIn = ref(false);
-const user = ref(null); // Store user object
+const user = ref(null); 
 
 const { $auth } = useNuxtApp();
 const router = useRouter();
 
-// **Compute user profile image dynamically**
 const userProfileImage = computed(() => user.value?.photoURL || "/placeholder.webp");
 
-// **Check user authentication state**
 onMounted(() => {
   const auth = getAuth();
 
-  // Set dark mode from localStorage
   isDarkMode.value = localStorage.getItem("theme") === "dark";
   document.documentElement.classList.toggle("dark", isDarkMode.value);
 
-  // **Check if user is already logged in before setting up the listener**
   if (auth.currentUser) {
     user.value = auth.currentUser;
     isLoggedIn.value = true;
   }
 
-  // **Listen for auth state changes**
   onAuthStateChanged($auth, (firebaseUser) => {
     user.value = firebaseUser;
     isLoggedIn.value = !!firebaseUser;
   });
 });
 
-// **Toggle Dark Mode**
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
   localStorage.setItem("theme", isDarkMode.value ? "dark" : "light");
   document.documentElement.classList.toggle("dark", isDarkMode.value);
 };
 
-// **Logout Function**
 const logout = async () => {
   try {
     await signOut($auth);
-    router.push("/auth/login"); // Use router instead of window.location.href
+    router.push("/auth/login");
   } catch (error) {
     console.error("Logout failed:", error);
   }
@@ -65,9 +57,7 @@ const logout = async () => {
         class="w-7 h-7 text-slate-900 dark:text-white font-bold cursor-pointer" @click="isOpen = true" />
     </div>
 
-    <!-- Slideover Menu -->
     <USlideover v-model="isOpen">
-      <!-- Dark Mode toggle -->
       <div class="p-3 flex justify-between">
         <UIcon :name="isDarkMode ? 'i-heroicons:moon' : 'i-heroicons:sun'"
           class="w-7 h-7 cursor-pointer text-slate-900 dark:text-white" @click="toggleDarkMode" />
@@ -78,7 +68,6 @@ const logout = async () => {
           class="w-10 h-10 rounded-full object-cover" />
       </div>
 
-      <!-- Menu Links -->
       <div class="p-4 flex-1">
         <UButton color="gray" variant="ghost" size="sm" icon="i-heroicons:x-mark-16-solid"
           class="flex sm:hidden absolute end-5 top-5 z-10" square padded @click="isOpen = false" />
@@ -89,7 +78,6 @@ const logout = async () => {
             Home
           </NuxtLink>
 
-          <!-- Profile Image in Slideover -->
           <div v-if="isLoggedIn" class="flex flex-col gap-2">
             <NuxtLink to="/user/profile" @click="isOpen = false"
               class="flex items-center gap-2 hover:bg-orange-300 hover:text-slate-900 w-4/12 rounded-lg p-1">
@@ -103,7 +91,6 @@ const logout = async () => {
           </NuxtLink>
           </div>
 
-          <!-- Conditionally show these links based on if the user is logged in or not -->
           <template v-if="!isLoggedIn">
             <NuxtLink to="/auth/register" @click="isOpen = false"
               class="flex items-center gap-2 hover:bg-orange-300 hover:text-slate-900 w-4/12 rounded-lg p-1">
@@ -121,7 +108,6 @@ const logout = async () => {
         </div>
       </div>
 
-      <!-- Show the logout link if the user is logged in -->
       <template v-if="isLoggedIn">
         <div @click="isOpen = false" class="flex justify-center">
           <button @click="logout"

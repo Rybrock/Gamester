@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore('user', {
     state: () => ({
-        user: null, // Load user from localStorage if it exists
+        user: null,
     }),
     actions: {
         setUser(user) {

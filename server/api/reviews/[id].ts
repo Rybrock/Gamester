@@ -1,11 +1,9 @@
-// server/api/reviews/[id].ts
 export default defineEventHandler(async (event) => {
-    console.log("Request received:", event.node.req.url);  // Debugging log
+    console.log("Request received:", event.node.req.url);
 
     const config = useRuntimeConfig();
     const apiKey: string = config.apiKey;
 
-    // ✅ Get gameId from route parameters
     const gameId = getRouterParam(event, "id");
 
     if (!gameId) {

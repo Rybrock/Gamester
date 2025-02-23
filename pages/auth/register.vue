@@ -10,7 +10,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore"; // Import Firestore
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { useRouter } from "vue-router";
 
 const toast = useToast();
